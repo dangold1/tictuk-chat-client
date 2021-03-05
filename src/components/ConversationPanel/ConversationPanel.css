@@ -1,0 +1,14 @@
+.form-send-message {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 8vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.MuiTypography-displayBlock {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
