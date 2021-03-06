@@ -1,13 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { io } from "socket.io-client";
 import { SERVER_URL } from './utils/server';
-import swal from 'sweetalert';
 import { CHANNELS_ROUTE } from "./utils/server";
 import Chat from "./components/Chat/Chat";
 import useFetch from "./hooks/useFetch";
 import { LoaderSpinner, ErrorAlert } from "./components/Exceptions/Exceptions";
 import { cloneDeep } from "lodash";
-import service from './services/user.service'
+import userService from './services/user.service';
 import './App.css';
 
 function App() {
@@ -23,23 +22,12 @@ function App() {
 
   const didMount = () => {
     socketRef.current = io(SERVER_URL);
-    socketRef.current.on('RECEIVED_MESSAGE', receivedMessage)
+    socketRef.current.on('RECEIVED_MESSAGE', receivedMessage);
   };
-
-  const getUserName = () => swal({
-    title: "Type your name",
-    content: {
-      element: "input",
-      attributes: {
-        placeholder: "Name",
-        type: "text",
-      },
-    },
-  });
 
   const connectNewUser = async (channelID) => {
     if (!channelID) return;
-    const userName = await getUserName();
+    const userName = await userService.getUserName();
     if (!userName) {
       return await connectNewUser(channelID);
     }
@@ -82,9 +70,8 @@ function App() {
     });
   }
 
-  const onSendMessage = ({ text, channelID, userID }) => {
-    console.log({ text, channelID, userID });
-    service.sendUserMessage({ text, channelID, userID })
+  const onSendMessage = ({ text, channelID, userID, userName }) => {
+    userService.sendUserMessage({ text, channelID, userID, userName })
   }
 
   if (isLoading) return <LoaderSpinner />;

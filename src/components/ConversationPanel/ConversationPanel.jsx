@@ -5,10 +5,9 @@ import Divider from "@material-ui/core/Divider";
 import TextField from "@material-ui/core/TextField";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import SendIcon from "@material-ui/icons/Send";
 import IconButton from "@material-ui/core/IconButton";
-import { Avatar, ListItemIcon } from "@material-ui/core";
+import { Avatar, ListItemIcon, Typography } from "@material-ui/core";
 import "./ConversationPanel.css";
 
 const useStyles = makeStyles({
@@ -17,6 +16,8 @@ const useStyles = makeStyles({
     overflowY: "auto",
   },
   myMessage: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
     borderRadius: 5,
     padding: 10,
     backgroundColor: "#00a0b2",
@@ -25,6 +26,8 @@ const useStyles = makeStyles({
     width: "40%",
   },
   otherUserMessage: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
     borderRadius: 5,
     padding: 10,
     width: "40%",
@@ -50,32 +53,44 @@ const ConversationPanel = ({ channel, onSendMessage }) => {
 
   const sendMessage = (e) => {
     e.preventDefault();
-    onSendMessage({
+    const newMessage = {
       text: inputValue,
       channelID: channel?.id,
       userID: channel?.user?.id,
-    });
+      userName: channel?.user?.userName,
+    };
+    onSendMessage(newMessage);
     setInputValue("");
   };
 
   const onInputChange = (e) => setInputValue(e.target.value);
 
+  const onKeyPress = (e) => {
+    if (e.key === "Enter") sendMessage(e);
+  };
+
+  // ------------------------------- Rendering ---------------------------------------------
+
+  if (!channel?.user) return null;
+
   const renderMessages = () =>
     Array.isArray(channel?.messages) &&
     channel.messages?.map((message) => {
+      console.log({ message });
       return (
         <ListItem key={message.id}>
           <div
-            style={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
             className={
               channel?.user?.id === message.userID
                 ? classes.myMessage
                 : classes.otherUserMessage
             }
           >
+            {!message?.isSystemMessage && (
+              <ListItemIcon>
+                <Avatar>{message.userName.charAt(0).toUpperCase()}</Avatar>
+              </ListItemIcon>
+            )}
             {message.text}
           </div>
         </ListItem>
@@ -89,7 +104,6 @@ const ConversationPanel = ({ channel, onSendMessage }) => {
 
       <Grid container className={classes.sendMessageBox}>
         <form onSubmit={sendMessage} className="form-send-message">
-          {/* <Grid item={true} xs={11}> */}
           <TextField
             multiline
             className={classes.textField}
@@ -98,10 +112,9 @@ const ConversationPanel = ({ channel, onSendMessage }) => {
             fullWidth
             InputProps={{ disableUnderline: true }}
             onChange={onInputChange}
+            onKeyPress={onKeyPress}
             value={inputValue}
           />
-          {/* </Grid> */}
-          {/* <Grid xs={1} align="right"> */}
           <IconButton
             type="submit"
             className={classes.sendIcon}
@@ -109,7 +122,6 @@ const ConversationPanel = ({ channel, onSendMessage }) => {
           >
             <SendIcon />
           </IconButton>
-          {/* </Grid> */}
         </form>
       </Grid>
     </Grid>

@@ -19,13 +19,13 @@ const Chat = ({ channels, setUserInChannel, onSendMessage }) => {
   const [selectedChannel, setSelectedChannel] = useState(null);
 
   useEffect(() => {
+    setSelectedChannel(channels?.find((ch) => ch.id === selectedChannel?.id));
+  }, [channels]);
+
+  useEffect(() => {
     if (selectedChannel?.user) return;
     setUserInChannel(selectedChannel);
   }, [selectedChannel]);
-
-  useEffect(() => {
-    setSelectedChannel(channels?.find((ch) => ch.id === selectedChannel?.id));
-  }, [channels]);
 
   const onSelectChannel = (channel) => {
     setSelectedChannel(cloneDeep(channel));
@@ -35,8 +35,8 @@ const Chat = ({ channels, setUserInChannel, onSendMessage }) => {
     <div className="chat-app">
       <Grid container component={Paper} className={classes.chatPage}>
         <ChannelsList
-          selectedChannel={selectedChannel}
           channels={channels}
+          selectedChannel={selectedChannel}
           onSelectChannel={onSelectChannel}
         />
         <ConversationPanel
